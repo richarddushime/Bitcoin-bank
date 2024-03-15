@@ -1,0 +1,4 @@
+[workspace]
+members = ["cold-wallet", "common-operations", "hot-wallet"]
+
+resolver = "2"
