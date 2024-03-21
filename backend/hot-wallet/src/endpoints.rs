@@ -81,7 +81,7 @@ pub async fn insert_user_spend(user_spending: Json<UserSpendHistory>) -> impl Re
     }
 }
 
-#[post("bitcoinbank/balance")]
+#[post("bitcoinbank/sendbalance")]
 pub async fn insert_user_account_details(user_account_details: Json<UserAccountDetails>) -> impl Responder {
     match database::insert_user_account_details(user_account_details.into_inner()) {
         Ok(_) => {
