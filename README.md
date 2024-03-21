@@ -83,7 +83,7 @@ Running the nodes try running with `fallbackfee` and `maxtxfee` to avoid any pot
 ```sh
 $ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
 
-$ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
+$ bitcoind -conf=bitcoin.conf -datadir=/path/to/cold-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
 ```
 
 #### Running the cold wallet
