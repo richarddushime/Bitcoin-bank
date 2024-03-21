@@ -2,7 +2,7 @@
 
 This guide provides step-by-step instructions on how to run the Bitcoin Bank project.
 
-For more information about the project, read the [Design Document](/Bitcoin-bank_Design_Document.md).
+For more information about the project, read the [Design Document](/docs/Bitcoin-bank_Design_Document.md).
 
 ## Prerequisites
 
@@ -42,19 +42,67 @@ Execute
 cargo build
 ```
 
-This command will compile the project and its dependencies.
+### Running the binaries
+The service requires `bitcoind` to be run for both the hot wallet and cold wallet. 
 
-### 4. Run the Project:
+Example configuration for the `bitcoin.conf` file for hot and cold wallets
+```toml
+# inside the /path/to/data/hot/wallet/directory/bitcoin.conf
+regtest=1
+server=1
+txindex=1
 
-After building the project, you can run it using Cargo:
+# Options only for regtest
+[regtest]
+rpcallowip=127.0.0.1
+rpcuser=foobar
+rpcpassword=password
+rpcport=18423
+port=18424
 
-```bash
-cargo run
+```
+Here, the `addnode` is added to connect hot-wallet bitcoind node to cold-wallet bitcoind node at port `18424` of the hot wallet
+```toml
+# inside the /path/to/data/cold/wallet/directory/bitcoin.conf
+regtest=1
+server=1
+txindex=1
+
+# Options only for regtest
+[regtest]
+rpcallowip=127.0.0.1
+rpcuser=foobar
+rpcpassword=password
+rpcport=18433
+port=18434
+addnode=127.0.0.1:18424
+
 ```
 
-This command will execute the project.
+Running the nodes try running with `fallbackfee` and `maxtxfee` to avoid any potential errors.
+```sh
+$ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
 
-### 5. Explore the Frontend:
+$ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
+```
+
+#### Running the cold wallet
+Pass the config file path for the cold wallet to the `cold-wallet`  server
+```sh
+$ cargo run -p cold-wallet -- path/to/cold/wallet/config
+```
+
+#### Running the hot wallet
+Pass the config file path for the cold wallet to the `cold-wallet`  server
+```sh
+$ cargo run -p hot-wallet -- path/to/cold/wallet/config
+```
+
+The cold wallet binary should mine some blocks when it has been started.
+
+The config files to pass to the binaries have example in the `btc.conf.example` file
+
+## Explore the Frontend:
 
 Navigate to the frontend directory and follow the instructions provided in the [README](/client/README.md) file located there.
 
