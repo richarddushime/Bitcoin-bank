@@ -93,7 +93,7 @@ $ cargo run -p cold-wallet -- path/to/cold/wallet/config
 ```
 
 #### Running the hot wallet
-Pass the config file path for the cold wallet to the `cold-wallet`  server
+Pass the config file path for the hot wallet to the `hot-wallet`  server
 ```sh
 $ cargo run -p hot-wallet -- path/to/hot/wallet/config
 ```
