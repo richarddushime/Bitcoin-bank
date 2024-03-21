@@ -95,7 +95,7 @@ $ cargo run -p cold-wallet -- path/to/cold/wallet/config
 #### Running the hot wallet
 Pass the config file path for the cold wallet to the `cold-wallet`  server
 ```sh
-$ cargo run -p hot-wallet -- path/to/cold/wallet/config
+$ cargo run -p hot-wallet -- path/to/hot/wallet/config
 ```
 
 The cold wallet binary should mine some blocks when it has been started.
