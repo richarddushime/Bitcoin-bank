@@ -1,11 +1,7 @@
 use bitcoincore_rpc::{
-    bitcoin::{
-        address::{self, ParseError},
-        Address, Amount, BlockHash, Network, Txid,
-    },
+    bitcoin::{Address, Amount, Network},
     bitcoincore_rpc_json::{
-        AddressType, CreateRawTransactionInput, EstimateMode, GetNetworkInfoResult,
-        ListUnspentResultEntry, LoadWalletResult,
+        AddressType, EstimateMode, GetNetworkInfoResult, ListUnspentResultEntry, LoadWalletResult,
     },
     Auth, Client, Result as BtcResult, RpcApi,
 };
@@ -19,9 +15,9 @@ use std::{
 
 pub struct Wallet {
     client: Client,
-    wallet_name: String,
-    cold: bool,
-    data_dir: String,
+    pub wallet_name: String,
+    pub cold: bool,
+    pub data_dir: String,
     pub rpc_port: String,
 }
 
@@ -131,7 +127,7 @@ impl Wallet {
             .output()
             .expect("failed to execute process");
 
-        println!("GENERATED BLOCKS OUTCOME: \n {:#?}", outcome);
+        println!("GENERATED {} BLOCKS ", num);
     }
 
     pub fn send_amount(&self, address: &str, amount: u64) -> BtcResult<String> {
