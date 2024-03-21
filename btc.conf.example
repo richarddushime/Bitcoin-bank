@@ -1,0 +1,6 @@
+rpc_username = "example_username"
+rpc_password = "example_password"
+rpc_port = "18423"
+wallet_name = "ExampleWallet"
+cold = false
+data_dir = "absolute_path_to_data_dir"
