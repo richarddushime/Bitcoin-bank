@@ -72,9 +72,9 @@ pub fn get_user_spending_history(user_id: i32) -> Result<Option<Vec<UserSpendHis
     let query_result = statement.query_map([&user_id], |row| {
         Ok(UserSpendHistory {
             user_id: row.get(1)?,
-            amount_spent: row.get(2)?,
-            source_address: row.get(3)?,
-            destination_address: row.get(4)?,
+            source_address: row.get(2)?,
+            destination_address: row.get(3)?,
+            amount_spent: row.get(4)?,
             fees_amount: row.get(5)?
         })
     })?;
@@ -137,6 +137,19 @@ pub fn insert_user(user: Users) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+pub fn insert_bank_balance(bank_balance: BankBalance) -> Result<(), Box<dyn Error>> {
+    let connection = get_database_connection()?;
+    //let connection = pool.get().unwrap();
+    //let new_user_id = Uuid::new_v4().simple().to_string();
+
+   // thread::sleep(Duration::from_secs(30));
+    //print!("{}","here");
+    let mut statement = connection.prepare("INSERT INTO bank_balance (hot_balance, cold_balance) VALUES (?,?)")?;
+    let _ = statement.execute((bank_balance.hot_balance, bank_balance.cold_balance))?;
+
+    Ok(())
+}
+
 pub fn insert_user_spend(user_spending: UserSpendHistory) -> Result<(), Box<dyn Error>> {
     let connection = get_database_connection()?;
     //let new_user_id = Uuid::new_v4().simple().to_string();
@@ -163,8 +176,7 @@ pub fn update_user_account_details(user_account_details: UserAccountDetails) -> 
     let connection = get_database_connection()?;
     //let new_user_id = Uuid::new_v4().simple().to_string();
 
-    let mut statement = connection.prepare("UPDATE INTO users_account_details (user_id, balance, account_address)
-    VALUES (?, ?, ?)")?;
+    let mut statement = connection.prepare("UPDATE users_account_details SET balance = ?, account_address = ? WHERE user_id = ?")?;
     let result_count = statement.execute((user_account_details.user_id, user_account_details.balance, user_account_details.account_address))?;
 
     let mut succeeded =false;

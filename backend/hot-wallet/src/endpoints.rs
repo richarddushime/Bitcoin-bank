@@ -1,6 +1,6 @@
 use actix_web::{get, post, delete, put, HttpResponse, Responder, web};
 use crate::database;
-use crate::schema::{Users,UserAccountDetails,UserSpendHistory};
+use crate::schema::{BankBalance, UserAccountDetails, UserSpendHistory, Users};
 use web::{Path, Json};
 
 #[get("bitcoinbank/balance/{user_id}")]
@@ -53,6 +53,18 @@ pub async fn get_bank_balance() -> impl Responder {
         },
         None => {
             HttpResponse::NotFound().body(format!("There is no balance available"))
+        }
+    }
+}
+
+#[post("bitcoinbank/sendbankbalance")]
+pub async fn insert_bankbalance(bankbalance: Json<BankBalance>) -> impl Responder {
+    match database::insert_bank_balance(bankbalance.into_inner()) {
+        Ok(_) => {
+            HttpResponse::Ok().finish()
+        }
+        Err(_) => {
+            HttpResponse::InternalServerError().finish()
         }
     }
 }
