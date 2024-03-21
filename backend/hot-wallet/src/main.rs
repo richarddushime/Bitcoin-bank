@@ -1,32 +1,86 @@
+mod database;
+mod endpoints;
+mod schema;
+
+use crate::endpoints::{
+    get_bank_balance, get_user_account_details_by_id, get_user_spending_history_by_id, get_users,
+    insert_user, insert_user_account_details, insert_user_spend, update_user_account_details,
+};
+use actix_web::middleware::Logger;
+use actix_web::{App, HttpServer};
 use common::Wallet;
-use std::{
-    io::{self, Read, Write},
+use env_logger::Env;
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
 };
 
-fn main() {
+lazy_static::lazy_static! {
+    static ref WALLET: Wallet = {
+
     let args: Vec<String> = std::env::args().collect();
 
     let wallet = Wallet::new(args[1].as_str());
 
-    dbg!(&wallet.does_wallet_exist());
-    dbg!(&wallet.get_balance());
+    wallet
+    };
 }
 
-fn wallet_balancer(wallet: &Wallet) -> io::Result<String> {
-    let mut stream = TcpStream::connect("127.0.0.1:8000").expect("Failed to connect to server");
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    dbg!(&WALLET.does_wallet_exist());
+    dbg!(&WALLET.get_balance());
 
-    let data_to_send = prepare_address(&wallet);
-    stream
-        .write_all(data_to_send.as_bytes())
-        .expect("Failed to write data to stream");
+    tokio::spawn(async {
+        let duration = tokio::time::Duration::from_secs(30);
+        let mut interval = tokio::time::interval(duration);
 
-    let mut received_data = String::new();
-    stream
-        .read_to_string(&mut received_data)
-        .expect("Failed to read data from stream");
+        loop {
+            interval.tick().await;
+            wallet_balancer(&WALLET).await;
+        }
+    });
 
-    Ok(received_data)
+    println!("Hello, world!");
+    //let pool = database::init_pool();
+
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    HttpServer::new(move || {
+        App::new()
+            .service(get_user_account_details_by_id)
+            .service(get_user_spending_history_by_id)
+            .service(insert_user)
+            .service(insert_user_spend)
+            .service(insert_user_account_details)
+            .service(update_user_account_details)
+            .service(get_users)
+            .service(get_bank_balance)
+            .wrap(Logger::default())
+    })
+    .bind(("0.0.0.0", 3000))?
+    .workers(2)
+    .run()
+    .await
+}
+
+async fn wallet_balancer(wallet: &Wallet) {
+    if wallet.get_balance().unwrap().to_sat() < 100_000_000 {
+        let mut stream = TcpStream::connect("127.0.0.1:8000")
+            .await
+            .expect("Failed to connect to server");
+
+        let data_to_send = prepare_address(&wallet);
+        stream
+            .write_all(data_to_send.as_bytes())
+            .await
+            .expect("Failed to write data to stream");
+
+        let mut received_data = String::new();
+        stream
+            .read_to_string(&mut received_data)
+            .await
+            .expect("Failed to read data from stream");
+    }
 }
 
 fn prepare_address(wallet: &Wallet) -> String {

@@ -117,7 +117,7 @@ impl Wallet {
     pub fn generate_blocks(&self, num: u64) {
         let rpc_port = format!("-rpcport={}", self.rpc_port);
         let data_dir = format!("-datadir={}", self.data_dir.as_str());
-        let outcome = std::process::Command::new("bitcoin-cli")
+        std::process::Command::new("bitcoin-cli")
             .args([
                 rpc_port.as_str(),
                 data_dir.as_str(),
