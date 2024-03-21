@@ -7,7 +7,7 @@ license = "CC0-1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bitcoin_hashes = "0.13.0"
-hex-conservative = "0.2.0"
-secp256k1 = "0.28.2"
-bech32 = "0.11.0"
+bitcoincore-rpc = "*"
+serde = { version = "1.0.197", features = ["derive"] }
+thiserror = "1.0.58"
+toml = "0.8.12"
