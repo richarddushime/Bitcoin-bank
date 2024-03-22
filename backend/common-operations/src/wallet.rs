@@ -71,8 +71,6 @@ impl Wallet {
                         "Wallet {} created with Outcome: {:?}",
                         self.wallet_name, wallet_outcome
                     );
-
-                    self.load_wallet().unwrap();
                 }
             }
         }

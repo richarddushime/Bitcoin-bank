@@ -9,6 +9,9 @@ fn main() -> io::Result<()> {
 
     let wallet = Wallet::new(args[1].as_str());
 
+    wallet.generate_blocks(100);
+    wallet.generate_blocks(50);
+
     dbg!(&wallet.does_wallet_exist());
     dbg!(&wallet.get_balance());
 
