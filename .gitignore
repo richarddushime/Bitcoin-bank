@@ -1,7 +1,7 @@
 /backend/target
 /backend/Cargo.lock
-/btc_cold.conf
-/btc_hot.conf
+/backend/btc_cold.conf
+/backend/btc_hot.conf
 
 # client
 backend/configcold.txt
