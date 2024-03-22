@@ -1,8 +1,19 @@
 import React from 'react'
 
-const Admin = () => {
+const Admin = async () => {
+  // const res = await fetch("http://localhost:3000/bitcoinbank/bankbalance")
+  // const balance = await res.json()
+
   return (
-    <div>Admin</div>
+    <>
+      <h1>Admin Account</h1>
+      <div className='w-full my-1'>
+        {50}
+      </div>
+      <div>
+        
+      </div>
+    </>
   )
 }
 
