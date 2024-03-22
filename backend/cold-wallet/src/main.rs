@@ -9,20 +9,21 @@ fn main() -> io::Result<()> {
 
     let wallet = Wallet::new(args[1].as_str());
 
+    dbg!(&wallet.does_wallet_exist());
+
     let mut init_balance = 0;
 
     loop {
-        init_balance += wallet.get_balance().unwrap().to_sat();
-
         if init_balance < 100_000_000 {
-            wallet.generate_blocks(500);
-            wallet.generate_blocks(50);
+            wallet.generate_blocks(100);
+            wallet.generate_blocks(5);
+            init_balance += wallet.get_balance().unwrap().to_sat();
+            dbg!(&init_balance);
         } else {
             break;
         }
     }
 
-    dbg!(&wallet.does_wallet_exist());
     dbg!(&wallet.get_balance());
 
     let socket = "127.0.0.1:8000";

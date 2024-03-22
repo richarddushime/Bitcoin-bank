@@ -9,21 +9,20 @@ use serde::Deserialize;
 use std::{
     fs::File,
     io::{self, Read},
-    path::Path,
+    path::{Path, PathBuf},
     str::FromStr,
 };
 
 pub struct Wallet {
     client: Client,
     pub wallet_name: String,
-    pub cold: bool,
-    pub data_dir: String,
+    pub data_dir: PathBuf,
     pub rpc_port: String,
 }
 
 impl Wallet {
-    pub fn new(config_file_path: impl AsRef<Path>) -> Self {
-        let config = Config::load(config_file_path).expect("Encountered error  while opening file");
+    pub fn new(type_info: &str) -> Self {
+        let config = Config::load(type_info).expect("Encountered error  while opening file");
         let rpc_port = format!("http://localhost:{}", &config.rpc_port);
         let client = Client::new(
             &rpc_port,
@@ -34,7 +33,6 @@ impl Wallet {
         Self {
             client,
             wallet_name: config.wallet_name,
-            cold: config.cold,
             data_dir: config.data_dir,
             rpc_port: config.rpc_port,
         }
@@ -114,7 +112,7 @@ impl Wallet {
 
     pub fn generate_blocks(&self, num: u64) {
         let rpc_port = format!("-rpcport={}", self.rpc_port);
-        let data_dir = format!("-datadir={}", self.data_dir.as_str());
+        let data_dir = format!("-datadir={}", self.data_dir.display());
         std::process::Command::new("bitcoin-cli")
             .args([
                 rpc_port.as_str(),
@@ -157,18 +155,72 @@ pub struct Config {
     rpc_password: String,
     rpc_port: String,
     wallet_name: String,
-    cold: bool,
-    data_dir: String,
+    data_dir: PathBuf,
 }
 
 impl Config {
-    fn load(config_file_path: impl AsRef<Path>) -> io::Result<Self> {
-        let mut file = File::open(config_file_path)?;
+    fn load(type_info: &str) -> io::Result<Self> {
         let mut contents = String::new();
+        let data_dir;
+        let mut file = if type_info == "cold" {
+            data_dir = Config::cold_wallet_dir();
+
+            File::open(Config::cold_wallet_conf())?
+        } else if type_info == "hot" {
+            data_dir = Config::hot_wallet_dir();
+            File::open(Config::hot_wallet_conf())?
+        } else {
+            panic!("Incorrect parameter, expected `hot` or `cold`");
+        };
+
         file.read_to_string(&mut contents)?;
 
-        let config = toml::from_str::<Self>(&contents).unwrap();
+        let mut config = toml::from_str::<Self>(&contents).unwrap();
+        config.data_dir = data_dir;
 
         Ok(config)
+    }
+
+    pub fn manifest_dir_path() -> PathBuf {
+        let env_path = env!("CARGO_MANIFEST_DIR");
+        let path = Path::new(env_path).parent().unwrap();
+
+        path.to_path_buf()
+    }
+
+    pub fn config_dir() -> PathBuf {
+        let mut manifest = Config::manifest_dir_path();
+
+        manifest.push("bitcoin-bank-conf");
+
+        manifest
+    }
+
+    fn cold_wallet_conf() -> PathBuf {
+        let mut conf = Config::config_dir();
+        conf.push("btc_cold.conf");
+
+        conf
+    }
+
+    fn hot_wallet_conf() -> PathBuf {
+        let mut conf = Config::config_dir();
+        conf.push("btc_hot.conf");
+
+        conf
+    }
+
+    fn cold_wallet_dir() -> PathBuf {
+        let mut conf = Config::config_dir();
+        conf.push("cold-wallet");
+
+        conf
+    }
+
+    fn hot_wallet_dir() -> PathBuf {
+        let mut conf = Config::config_dir();
+        conf.push("hot-wallet");
+
+        conf
     }
 }

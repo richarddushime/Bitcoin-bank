@@ -32,75 +32,30 @@ cd Bitcoin-bank
 
 > Note:This project consists of 2 modules client(frontend) and backend,
 
-### 3. Build the Project:
-Navigate to backend folder
-```
-cd backend
-```
-Execute
-```bash
-cargo build
-```
-
-### Running the binaries
+### 3. Running the binaries
 The service requires `bitcoind` to be run for both the hot wallet and cold wallet. 
+There is a default configuration in the `backend/bitcoin-bank-conf` directory.
 
-Example configuration for the `bitcoin.conf` file for hot and cold wallets
-```toml
-# inside the /path/to/data/hot/wallet/directory/bitcoin.conf
-regtest=1
-server=1
-txindex=1
-
-# Options only for regtest
-[regtest]
-rpcallowip=127.0.0.1
-rpcuser=foobar
-rpcpassword=password
-rpcport=18423
-port=18424
-
-```
-Here, the `addnode` is added to connect hot-wallet bitcoind node to cold-wallet bitcoind node at port `18424` of the hot wallet
-```toml
-# inside the /path/to/data/cold/wallet/directory/bitcoin.conf
-regtest=1
-server=1
-txindex=1
-
-# Options only for regtest
-[regtest]
-rpcallowip=127.0.0.1
-rpcuser=foobar
-rpcpassword=password
-rpcport=18433
-port=18434
-addnode=127.0.0.1:18424
-
-```
-
-Running the nodes try running with `fallbackfee` and `maxtxfee` to avoid any potential errors.
+To run the nodes for the hot and cold wallet nodes first run the hot wallet because the cold wallet node will try to connect to the hot wallet node. 
+Remember to replace the part `/aboslute/path/to/project/directory` with the path to this github project in your local machine since it will look in the `<absolute_path>/backend/bitcoin-bank-conf` 
 ```sh
-$ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
-
-$ bitcoind -conf=bitcoin.conf -datadir=/path/to/cold-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
+$ bitcoind -conf=bitcoin.conf -datadir=/aboslute/path/to/project/directory/backend/bitcoin-bank-conf/hot-wallet -fallbackfee=0.00001 -maxtxfee=0.0001
 ```
-
-#### Running the cold wallet
-Pass the config file path for the cold wallet to the `cold-wallet`  server
+Then run the cold wallet replacing the path
 ```sh
-$ cargo run -p cold-wallet -- path/to/cold/wallet/config
+$ bitcoind -conf=bitcoin.conf -datadir=/aboslute/path/to/project/directory/backend/bitcoin-bank-conf/cold-wallet -fallbackfee=0.00001 -maxtxfee=0.0001
 ```
+We will use `cold` and `hot` commandline arguments to signify either running a cold wallet binary or the hot wallet + server binary.
 
-#### Running the hot wallet
-Pass the config file path for the hot wallet to the `hot-wallet`  server
+Run the cold wallet to generate some blocks.
+Inside the `backend` directory run
 ```sh
-$ cargo run -p hot-wallet -- path/to/hot/wallet/config
+$ cargo run -p cold-wallet -- cold
 ```
-
-The cold wallet binary should mine some blocks when it has been started.
-
-The config files to pass to the binaries have example in the `btc.conf.example` file
+Then run the hot wallet + server binary (still inside the backend directory)
+```sh
+$ cargo run -p hot-wallet -- hot
+```
 
 ## Explore the Frontend:
 

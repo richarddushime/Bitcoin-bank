@@ -64,6 +64,10 @@ async fn main() -> std::io::Result<()> {
 }
 
 async fn wallet_balancer(wallet: &Wallet) {
+    println!(
+        "INTIAL_WALLET_BALANCE: {}",
+        wallet.get_balance().unwrap().to_sat()
+    );
     if wallet.get_balance().unwrap().to_sat() < 100_000_000 {
         let mut stream = TcpStream::connect("127.0.0.1:8000")
             .await
