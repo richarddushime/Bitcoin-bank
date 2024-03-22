@@ -9,8 +9,18 @@ fn main() -> io::Result<()> {
 
     let wallet = Wallet::new(args[1].as_str());
 
-    wallet.generate_blocks(100);
-    wallet.generate_blocks(50);
+    let mut init_balance = 0;
+
+    loop {
+        init_balance += wallet.get_balance().unwrap().to_sat();
+
+        if init_balance < 100_000_000 {
+            wallet.generate_blocks(500);
+            wallet.generate_blocks(50);
+        } else {
+            break;
+        }
+    }
 
     dbg!(&wallet.does_wallet_exist());
     dbg!(&wallet.get_balance());
