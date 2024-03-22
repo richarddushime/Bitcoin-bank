@@ -33,3 +33,10 @@ pub struct BankBalance{
     pub hot_balance: f64,
     pub cold_balance: f64,
 }
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Spend{
+    pub dest_address: String,
+    pub amount: u64
+}
