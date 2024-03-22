@@ -83,7 +83,7 @@ Running the nodes try running with `fallbackfee` and `maxtxfee` to avoid any pot
 ```sh
 $ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
 
-$ bitcoind -conf=bitcoin.conf -datadir=/path/to/hot-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
+$ bitcoind -conf=bitcoin.conf -datadir=/path/to/cold-wallet/data/directory -fallbackfee=0.00001 -maxtxfee=0.0001
 ```
 
 #### Running the cold wallet
@@ -93,9 +93,9 @@ $ cargo run -p cold-wallet -- path/to/cold/wallet/config
 ```
 
 #### Running the hot wallet
-Pass the config file path for the cold wallet to the `cold-wallet`  server
+Pass the config file path for the hot wallet to the `hot-wallet`  server
 ```sh
-$ cargo run -p hot-wallet -- path/to/cold/wallet/config
+$ cargo run -p hot-wallet -- path/to/hot/wallet/config
 ```
 
 The cold wallet binary should mine some blocks when it has been started.
