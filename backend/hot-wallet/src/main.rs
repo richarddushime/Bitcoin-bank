@@ -29,7 +29,10 @@ lazy_static::lazy_static! {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dbg!(&WALLET.does_wallet_exist());
-    dbg!(&WALLET.get_balance());
+    println!(
+        "INTIAL_WALLET_BALANCE: {}",
+        WALLET.get_balance().unwrap().to_sat()
+    );
 
     tokio::spawn(async {
         let duration = tokio::time::Duration::from_secs(30);
@@ -64,10 +67,6 @@ async fn main() -> std::io::Result<()> {
 }
 
 async fn wallet_balancer(wallet: &Wallet) {
-    println!(
-        "INTIAL_WALLET_BALANCE: {}",
-        wallet.get_balance().unwrap().to_sat()
-    );
     if wallet.get_balance().unwrap().to_sat() < 100_000_000 {
         let mut stream = TcpStream::connect("127.0.0.1:8000")
             .await
