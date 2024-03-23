@@ -1,5 +1,5 @@
 use crate::database;
-use crate::schema::{UserAccountDetails, UserSpendHistory, Users};
+use crate::schema::{UserAccountDetails, UserSpendHistory, Users,Spend};
 use actix_web::{delete, get, post, put, web, HttpResponse, Responder};
 use web::{Json, Path};
 
@@ -66,6 +66,7 @@ pub async fn insert_user_spend(user_spending: Json<UserSpendHistory>) -> impl Re
     }
 }
 
+
 #[post("bitcoinbank/sendbalance")]
 pub async fn insert_user_account_details(
     user_account_details: Json<UserAccountDetails>,
@@ -93,6 +94,26 @@ pub async fn update_user_account_details(
             }
         }
         Err(_) => HttpResponse::InternalServerError().finish(),
+    }
+}
+
+#[post("bitcoinbank/spendfromwallet")]
+pub async fn spend_from_wallet(spend: Json<Spend>) -> impl Responder {
+    match database::spend_from_wallet(spend.into_inner()) {
+        Ok(transaction_id) => HttpResponse::Ok().content_type("application/json").json(transaction_id),
+        Err(_) => HttpResponse::InternalServerError().finish(),
+    }
+}
+
+#[get("bitcoinbank/getbalancefromwallet")]
+pub async fn get_wallet_balance() -> impl Responder {
+    match database::get_wallet_balance().unwrap() {
+        Some(amount) => {
+            HttpResponse::Ok().content_type("application/json").json(amount)
+        },
+        None => {
+            HttpResponse::NotFound().body(format!("There is no amount "))
+        }
     }
 }
 

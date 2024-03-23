@@ -3,8 +3,8 @@ mod endpoints;
 mod schema;
 
 use crate::endpoints::{
-    get_bank_balance, get_user_account_details_by_id, get_user_spending_history_by_id, get_users,
-    insert_user, insert_user_account_details, insert_user_spend, update_user_account_details,
+    get_bank_balance, get_user_account_details_by_id, get_user_spending_history_by_id, get_users,spend_from_wallet,
+    insert_user, insert_user_account_details, insert_user_spend, update_user_account_details,get_wallet_balance
 };
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
@@ -58,6 +58,8 @@ async fn main() -> std::io::Result<()> {
             .service(update_user_account_details)
             .service(get_users)
             .service(get_bank_balance)
+            .service(get_wallet_balance)
+            .service(spend_from_wallet)
             .wrap(Logger::default())
     })
     .bind(("0.0.0.0", 3000))?

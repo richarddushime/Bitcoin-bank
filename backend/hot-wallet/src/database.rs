@@ -4,7 +4,9 @@ use std::error::Error;
 use rusqlite::Connection;
 use std::thread;
 use std::time::Duration;
-use crate::schema::{BankBalance, UserAccountDetails, UserSpendHistory, Users};
+use crate::{schema::{BankBalance, UserAccountDetails, UserSpendHistory, Users, Spend}, WALLET};
+
+
 
 
 pub fn get_user_account_details(user_id: i32) -> Result<Option<Vec<UserAccountDetails>>, Box<dyn Error>> {
@@ -194,3 +196,19 @@ pub fn get_database_connection() -> Result<Connection, Box<dyn Error>> {
     Ok(connection)
 }
 
+
+
+pub fn get_wallet_balance() -> Result<Option<f64>, Box<dyn Error>> {
+    let my_wallet = WALLET.get_balance().unwrap().to_btc();
+    //let wallet_client = my_wallet.client();
+    //let wallet_balance_result = my_wallet.get_balance();
+    
+    Ok(Some(my_wallet))
+}
+
+pub fn spend_from_wallet(spend: Spend) -> Result<String, Box<dyn Error>> {
+    let spend_address = spend.dest_address;
+    let st_spend_address = spend_address.as_str();
+    let transaction_id = WALLET.send_amount(st_spend_address, spend.amount).unwrap();
+    Ok(transaction_id)
+}
