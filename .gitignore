@@ -7,3 +7,6 @@ client/node_modules/
 /btc_cold.conf
 /btc_hot.conf
 /client/node_modules
+backend/configcold.txt
+backend/confighot.txt
+config_hot
