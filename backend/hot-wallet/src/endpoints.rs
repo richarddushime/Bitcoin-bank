@@ -40,6 +40,8 @@ pub async fn get_users() -> impl Responder {
     }
 }
 
+
+
 #[get("bitcoinbank/bankbalance")]
 pub async fn get_bank_balance() -> impl Responder {
     match database::get_bank_balance().unwrap() {
@@ -53,8 +55,8 @@ pub async fn get_bank_balance() -> impl Responder {
 #[post("bitcoinbank/signup")]
 pub async fn insert_user(user: Json<Users>) -> impl Responder {
     match database::insert_user(user.into_inner()) {
-        Ok(_) => HttpResponse::Ok().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(api_key) => HttpResponse::Ok().body(api_key),
+        Err(e) => HttpResponse::InternalServerError().body(e.to_string())
     }
 }
 

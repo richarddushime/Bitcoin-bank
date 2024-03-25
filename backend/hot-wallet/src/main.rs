@@ -10,6 +10,7 @@ use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
 use common::Wallet;
 use env_logger::Env;
+use actix_cors::Cors;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -27,7 +28,7 @@ lazy_static::lazy_static! {
 }
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+ async fn main() -> std::io::Result<()> {
     dbg!(&WALLET.does_wallet_exist());
     println!(
         "INTIAL_WALLET_BALANCE: {}",
@@ -61,6 +62,12 @@ async fn main() -> std::io::Result<()> {
             .service(get_wallet_balance)
             .service(spend_from_wallet)
             .wrap(Logger::default())
+            .wrap(
+                Cors::default()
+                    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+                    .allow_any_origin()
+                    .max_age(3600)
+            )
     })
     .bind(("0.0.0.0", 3000))?
     .workers(2)

@@ -2,7 +2,7 @@ use actix_web::rt::time;
 use config::Config;
 use std::error::Error;
 use rusqlite::Connection;
-use std::thread;
+use uuid::Uuid;
 use std::time::Duration;
 use crate::{schema::{BankBalance, UserAccountDetails, UserSpendHistory, Users, Spend}, WALLET};
 
@@ -126,17 +126,39 @@ pub fn get_users() -> Result<Option<Vec<Users>>, Box<dyn Error>> {
     }
 }
 
-pub fn insert_user(user: Users) -> Result<(), Box<dyn Error>> {
+pub fn insert_user(user: Users) -> Result<String, Box<dyn Error>> {
     let connection = get_database_connection()?;
     //let connection = pool.get().unwrap();
-    //let new_user_id = Uuid::new_v4().simple().to_string();
+    let api_key = Uuid::new_v4().simple().to_string();
 
    // thread::sleep(Duration::from_secs(30));
     print!("{}","here");
     let mut statement = connection.prepare("INSERT INTO users (full_name, username, email, password, api_key) VALUES (?, ?, ?,?,?)")?;
-    let _ = statement.execute((user.full_name, user.username, user.email, user.password, user.api_key))?;
+    let _ = statement.execute((user.full_name, user.username, user.email, user.password, api_key.clone()))?;
 
-    Ok(())
+    Ok(api_key)
+}
+
+pub fn get_user(api_key: String) -> Result<Option<Users>, Box<dyn Error>> {
+    let connection = get_database_connection()?;
+    let mut statement = connection.prepare("SELECT * FROM users WHERE api_key = ?")?;
+    let query_result = statement.query_map([&api_key], |row| {
+        Ok(Users {
+            user_id: row.get(0)?,
+            full_name: row.get(1)?,
+            email: row.get(2)?,
+            username: row.get(3)?,
+            password: row.get(4)?,
+            api_key: row.get(5)?
+        })
+    })?;
+
+    let mut user: Option<Users> = None;
+    for api_user in query_result {
+        user = Some(api_user.unwrap());
+    }
+
+    Ok(user)
 }
 
 pub fn insert_bank_balance(bank_balance: BankBalance) -> Result<(), Box<dyn Error>> {

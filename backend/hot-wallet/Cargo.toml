@@ -15,7 +15,8 @@ uuid = { version = "1.2.2", features = ["v4"] }
 config = "0.13.3"
 actix = "0.13.0"
 #actix-web = {version = "4.3.0", features= ["openssl"] }
-actix-web = { version = "4.3.0" }
+actix-web = { version = "4.3.0"}
+actix-cors = "0.6.4"
 env_logger = "0.10.0"
 tokio = "1.36.0"
 lazy_static = "1.4.0"
