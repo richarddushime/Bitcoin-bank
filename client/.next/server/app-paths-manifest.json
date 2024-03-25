@@ -1,9 +1,0 @@
-<<<<<<< HEAD
-{}
-=======
-{
-  "/page": "app/page.js",
-  "/account/page": "app/account/page.js",
-  "/admin/page": "app/admin/page.js"
-}
->>>>>>> 5977c02 (pulling dynamic content from hot wallet)
