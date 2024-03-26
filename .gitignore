@@ -10,3 +10,9 @@ client/node_modules/
 backend/configcold.txt
 backend/confighot.txt
 config_hot
+backend/bitcoin-bank-conf/btc_cold.conf
+backend/bitcoin-bank-conf/btc_cold.conf
+backend/bitcoin-bank-conf/btc_cold.conf
+backend/bitcoin-bank-conf/btc_hot.conf
+backend/bitcoin-bank-conf/cold-wallet/bitcoin.conf
+backend/bitcoin-bank-conf/hot-wallet/bitcoin.conf

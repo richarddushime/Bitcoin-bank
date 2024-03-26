@@ -11,6 +11,7 @@ use actix_web::{App, HttpServer};
 use common::Wallet;
 use env_logger::Env;
 use actix_cors::Cors;
+use actix_web::http::header;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -64,8 +65,10 @@ lazy_static::lazy_static! {
             .wrap(Logger::default())
             .wrap(
                 Cors::default()
+                    .allowed_origin("http://localhost:8090")
                     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
-                    .allow_any_origin()
+                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+                    .allowed_header(header::CONTENT_TYPE)
                     .max_age(3600)
             )
     })
