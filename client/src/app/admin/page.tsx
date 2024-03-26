@@ -1,35 +1,12 @@
-'use client';
-
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Balance from '@/components/Balance'
+import TransferButton from '@/components/TransferButton'
 
 const Admin = async () => {
-    const spend = async (data: any) => {
-      try {
-        const req = await fetch("http://127.0.0.1:3000/bitcoinbank/spendfromwallet",
-          {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          }
-        )
-        console.log(req.json())
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    spend({
-      "dest_address":"bcrt1qg4u6746cf0geu3ysrdn2dmpn5vtm3ye2dmsmhw",
-      "amount": 50000
-    });
-
   return (
     <>
       <h1>Admin Account</h1>
       <Balance/>
-      <div>
       <form className="w-full max-w-sm">
         <div className="md:flex md:items-center mb-6">
           <div className="md:w-1/3">
@@ -54,13 +31,10 @@ const Admin = async () => {
         <div className="md:flex md:items-center">
           <div className="md:w-1/3"></div>
           <div className="md:w-2/3">
-            <button onClick={spend} className="shadow cursor-pointer bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
-              Transfer
-            </button>
+            <TransferButton/>
           </div>
         </div>
       </form>
-      </div>
     </>
   )
 }
