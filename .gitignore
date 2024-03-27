@@ -4,8 +4,8 @@ backend/btc_cold.conf
 backend/btc_hot.conf
 client/next-env.d.ts
 client/node_modules/
-/btc_cold.conf
-/btc_hot.conf
+backend/btc_cold.conf
+backend/btc_hot.conf
 /client/node_modules
 /client/.next
 backend/configcold.txt
@@ -17,3 +17,5 @@ backend/bitcoin-bank-conf/btc_cold.conf
 backend/bitcoin-bank-conf/btc_hot.conf
 backend/bitcoin-bank-conf/cold-wallet/bitcoin.conf
 backend/bitcoin-bank-conf/hot-wallet/bitcoin.conf
+front-end/node_modules
+client/.next

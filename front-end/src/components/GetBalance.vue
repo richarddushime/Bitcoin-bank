@@ -1,6 +1,7 @@
 <template>
   <div class="bitcoin-bank">
     <h2>Bitcoin Bank</h2>
+    <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
       <label for="destinationAddress" class="label">Destination Address:</label><br>
       <input type="text" id="destinationAddress" v-model="destinationAddress" required class="input" /><br>
@@ -60,6 +61,7 @@
           }
         } catch (error) {
           console.error("Error spending from wallet:", error);
+          this.error = "Error spending from wallet:";
         }
       },
 
