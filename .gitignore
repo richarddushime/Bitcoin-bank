@@ -1,12 +1,13 @@
 /backend/target
 /backend/Cargo.lock
-/btc_cold.conf
-/btc_hot.conf
+backend/btc_cold.conf
+backend/btc_hot.conf
 client/next-env.d.ts
 client/node_modules/
 /btc_cold.conf
 /btc_hot.conf
 /client/node_modules
+/client/.next
 backend/configcold.txt
 backend/confighot.txt
 config_hot
