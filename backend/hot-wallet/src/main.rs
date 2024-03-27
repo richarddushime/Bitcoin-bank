@@ -65,10 +65,11 @@ lazy_static::lazy_static! {
             .wrap(Logger::default())
             .wrap(
                 Cors::default()
-                    .allowed_origin("http://localhost:8090")
+                    .allowed_origin("http://127.0.0.1:8090")
                     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
                     .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
                     .allowed_header(header::CONTENT_TYPE)
+                    .supports_credentials()
                     .max_age(3600)
             )
     })

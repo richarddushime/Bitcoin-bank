@@ -1,40 +1,34 @@
-import React, { useEffect, useState } from 'react'
-import Balance from '@/components/Balance'
-import TransferButton from '@/components/TransferButton'
+'use client';
 
-const Admin = async () => {
+import React, { useEffect, useState } from 'react'
+// import Balance from '@/components/Balance'
+import TransferForm from '@/components/TransferForm'
+
+const Admin = () => {
+  const [balance, setBalance] = useState<number>();
+  const getBalance = async () => {
+    const res = await fetch("http://127.0.0.1:3000/bitcoinbank/getbalancefromwallet", {
+      method: "GET",
+      headers: {
+        'content-type': 'application/json',
+      }
+    })
+    const data = await res.json();
+    console.log(data)
+    setBalance(data)
+  }
+
+  useEffect(() => {
+    getBalance();
+  },[])
+
   return (
     <>
       <h1>Admin Account</h1>
-      <Balance/>
-      <form className="w-full max-w-sm">
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/3">
-            <label className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="destination-address">
-              Destination Address
-            </label>
-          </div>
-          <div className="md:w-2/3">
-            <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="destination-address" type="text" value="Btrust Doe"/>
-          </div>
-        </div>
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/3">
-            <label className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="amount">
-              Amount
-            </label>
-          </div>
-          <div className="md:w-2/3">
-            <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="amount" type="number" placeholder="50000"/>
-          </div>
-        </div>
-        <div className="md:flex md:items-center">
-          <div className="md:w-1/3"></div>
-          <div className="md:w-2/3">
-            <TransferButton/>
-          </div>
-        </div>
-      </form>
+      <div className='w-full my-1'>
+        {balance}
+      </div>
+      <TransferForm/>
     </>
   )
 }

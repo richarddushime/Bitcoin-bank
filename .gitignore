@@ -4,6 +4,7 @@
 /btc_hot.conf
 client/next-env.d.ts
 client/node_modules/
+client/.next/
 /btc_cold.conf
 /btc_hot.conf
 /client/node_modules
