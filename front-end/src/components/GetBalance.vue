@@ -30,31 +30,39 @@
           dest_address: this.destinationAddress,
           amount: this.amount,
         };
-        // console.log(data); 
+        console.log(data); 
+
         try {
           const response = await fetch(
-            ("http://localhost:3000/bitcoinbank/spendfromwallet"),
+            "http://localhost:3000/bitcoinbank/spendfromwallet",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
-              mode: 'no-cors'
+              // mode: 'no-cors'
             }
           );
-  
+        
           if (response.ok) {
-            const transactionId = await response.json();
-            this.transactionId = transactionId;
-            // Clearing form fields after successful spend
-            this.destinationAddress = "";
-            this.amount = 0;
+            try {
+              const transactionId = await response.json();
+              this.transactionId = transactionId;
+              // Clearing form fields after successful spend
+              this.destinationAddress = "";
+              this.amount = 0;
+            } catch (error) {
+              console.error("Error parsing JSON response:", error);
+              this.error = "An error occurred while spending from wallet."; 
+            }
           } else {
-            console.error("Error spending from wallet:", await response.json());
+            console.error("Error spending from wallet:", await response.text());
+            this.error = "An error occurred while communicating with the server.";
           }
         } catch (error) {
           console.error("Error spending from wallet:", error);
         }
       },
+
       async getBalanceFromWallet() {
         try {
           const response = await fetch(
