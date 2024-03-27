@@ -1,10 +1,11 @@
 <template>
   <div class="bitcoin-bank">
     <h2>Bitcoin Bank</h2>
+    <p class="pcustom">Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
-      <label for="destinationAddress" class="label">Destination Address:</label><br>
+      <label for="destinationAddress" class="label">Destination Address:</label>
       <input type="text" id="destinationAddress" v-model="destinationAddress" required class="input" /><br>
-      <label for="amount" class="label">Amount (in satoshis):</label> <br>
+      <label for="amount" class="label">Amount (in satoshis):</label>
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
@@ -141,5 +142,10 @@
 
 .balance {
   font-style: italic;
+}
+
+.pcustom {
+  font-style: normal;
+  text-decoration: wavy;
 }
 </style>
