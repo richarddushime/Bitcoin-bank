@@ -1,8 +1,8 @@
 <template>
-  <img alt="Vue logo" src="./assets/BitcoinBank.png">
+  <!-- <img alt="Vue logo" src="./assets/BitcoinBank.png"> -->
   <GetBalance><p>Balance: {{ balance }}</p>
 </GetBalance>
-<HelloWorld msg="Bitcoin Bank "/>
+<HelloWorld msg=" "/>
 
 </template>
 
