@@ -29,6 +29,7 @@
           dest_address: this.destinationAddress,
           amount: this.amount,
         };
+        console.log(data); 
   
         try {
           const response = await fetch(
