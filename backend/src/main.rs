@@ -53,28 +53,31 @@ async fn main() -> std::io::Result<()> {
     HOT_CLIENT_RPC.get_or_init(|| hot_client_rpc);
 
     let client = RpcOps::new(&config.mining);
-    if client.get_balance().unwrap().to_sat() < 100_000_000 {
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(100),
-            &config,
-        );
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
-            &config,
-        );
 
-        let send_amount = (client.get_balance().unwrap().to_sat()) as f64 * 0.9;
+    handle_output_err(
+        BtcNative::bitcoin_cli(&config.mining).generate_blocks(100),
+        &config,
+    );
+    handle_output_err(
+        BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
+        &config,
+    );
 
-        client
-            .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
-            .await
-            .unwrap();
+    let send_amount = (client.get_balance().unwrap().to_sat()) as f64 * 0.5;
 
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
-            &config,
-        );
-    }
+    dbg!(&client.get_balance().unwrap().to_sat());
+    dbg!(&send_amount);
+    dbg!(&client.get_balance().unwrap().to_sat());
+
+    client
+        .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
+        .await
+        .unwrap();
+
+    handle_output_err(
+        BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
+        &config,
+    );
 
     tokio::spawn(async move {
         mine_blocks(&config2).await;
