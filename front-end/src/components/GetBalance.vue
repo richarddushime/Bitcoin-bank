@@ -2,16 +2,17 @@
   <div class="bitcoin-bank">
     <h2>Bitcoin Bank</h2>
     <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
+    <p class="balance"> Current Balance: {{ balance }}</p>
+    <p>Ready to Spend ?  Fill the Form</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
-      <label for="destinationAddress" class="label">Destination Address:</label><br>
+      <label for="destinationAddress" class="label">Destination Address:</label>
       <input type="text" id="destinationAddress" v-model="destinationAddress" required class="input" /><br>
-      <label for="amount" class="label">Amount (in satoshis):</label> <br>
+      <label for="amount" class="label">Amount (in satoshis):</label>
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
     <p v-if="transactionId" class="transaction-id">Transaction ID: {{ transactionId }}</p>
     <p v-if="error" class="error-message">{{ error }}</p>
-    <p class="balance">Balance: {{ balance }}</p>
   </div>
 </template>
   
@@ -106,8 +107,10 @@
   margin-bottom: 1rem;
 }
 
-.label {
+label {
   font-weight: bold;
+  float: left;
+  display: block;
 }
 
 .input,
