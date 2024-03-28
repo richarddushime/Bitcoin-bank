@@ -7,6 +7,7 @@ use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
+use endpoints::get_address_balance;
 use env_logger::Env;
 use once_cell::sync::{Lazy, OnceCell};
 use std::{io, process::Output};
@@ -95,6 +96,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_users)
             .service(get_bank_balance)
             .service(get_wallet_balance)
+            .service(get_address_balance)
             .service(spend_from_wallet)
             .wrap(Logger::default())
             .wrap(
