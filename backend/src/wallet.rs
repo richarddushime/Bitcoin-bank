@@ -1,11 +1,10 @@
 use crate::CommonNodeDetails;
 use bitcoincore_rpc::{
     bitcoin::{Address, Amount, Network},
-    bitcoincore_rpc_json::{
-        AddressType, EstimateMode, GetNetworkInfoResult, ListUnspentResultEntry, LoadWalletResult,
-    },
+    bitcoincore_rpc_json::{AddressType, EstimateMode, GetNetworkInfoResult, LoadWalletResult},
     Auth, Client, Result as BtcResult, RpcApi,
 };
+use serde::Serialize;
 use std::str::FromStr;
 
 pub struct RpcOps {
@@ -71,13 +70,7 @@ impl RpcOps {
         }
     }
 
-    pub fn list_unspent(&self) -> Vec<ListUnspentResultEntry> {
-        self.client
-            .list_unspent(Option::None, Option::None, None, None, None)
-            .unwrap()
-    }
-
-    pub fn send_amount(&self, address: &str, amount: u64) -> BtcResult<String> {
+    pub async fn send_amount(&self, address: &str, amount: u64) -> BtcResult<TxResult> {
         let address = self.parse_address(address).unwrap();
         let amount = Amount::from_sat(amount);
 
@@ -86,12 +79,31 @@ impl RpcOps {
             amount,
             None,
             None,
-            Some(true),
+            None,
             None,
             None,
             Some(EstimateMode::Unset),
         )?;
 
-        Ok(tx.to_string())
+        let tx_info = self.client.get_raw_transaction_info(&tx, None)?;
+
+        let bank_balance = self.get_balance().unwrap();
+
+        return Ok(TxResult {
+            txid: tx_info.txid.to_string(),
+            bank_balance: bank_balance.to_btc(),
+            witness_hash: tx_info.hash.to_string(),
+            version: tx_info.version,
+            locktime: tx_info.locktime,
+        });
     }
+}
+
+#[derive(Debug, Serialize)]
+pub struct TxResult {
+    txid: String,
+    bank_balance: f64,
+    witness_hash: String,
+    version: u32,
+    locktime: u32,
 }

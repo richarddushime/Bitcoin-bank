@@ -1,6 +1,7 @@
 use crate::schema::{Spend, UserAccountDetails, UserSpendHistory, Users};
 use crate::{database, HOT_CLIENT_RPC};
 use actix_web::{delete, get, post, put, web, HttpResponse, Responder};
+use bitcoincore_rpc::Error as BtcError;
 use web::{Json, Path};
 
 #[get("bitcoinbank/balance/{user_id}")]
@@ -98,11 +99,22 @@ pub async fn update_user_account_details(
 
 #[post("bitcoinbank/spendfromwallet")]
 pub async fn spend_from_wallet(spend: Json<Spend>) -> impl Responder {
-    match database::spend_from_wallet(HOT_CLIENT_RPC.get().unwrap(), spend.into_inner()) {
+    match database::spend_from_wallet(HOT_CLIENT_RPC.get().unwrap(), spend.into_inner()).await {
         Ok(transaction_id) => HttpResponse::Ok()
             .content_type("application/json")
             .json(transaction_id),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Err(error) => match error {
+            BtcError::ReturnedError(error) => HttpResponse::Ok()
+                .content_type("application/json")
+                .json(error),
+            BtcError::Json(error) => HttpResponse::Ok()
+                .content_type("application/json")
+                .json(error.to_string()),
+            BtcError::JsonRpc(error) => HttpResponse::Ok()
+                .content_type("application/json")
+                .json(error.to_string()),
+            _ => HttpResponse::InternalServerError().finish(),
+        },
     }
 }
 
@@ -115,21 +127,3 @@ pub async fn get_wallet_balance() -> impl Responder {
         None => HttpResponse::NotFound().body(format!("There is no amount ")),
     }
 }
-
-/*
-NOTE: `bitcoincore_rpc::bitcoincore_rpc_json::Result` is renamed as `BtcResult`
-- To get the wallet, call `WALLET` which is a global variable
-  example to get the client call `WALLET.client()` which exposes `bitcoincore_rpc::Client`
-
-- To get the balance of the hot wallet `WALLET.get_balance()` which returns `BtcResult<Amount>`
-
-- To get network info use `WALLET.network()` which returns `BtcResult<GetNetworkInfoResult>`
-
-- To get best blockhash use `WALLET.best_blockhash()` which returns a `BtcResult<String>`
-
-- To send an amount to another wallet use `WALLET.send_amount(address: &str, amount: u64)`
-  which require a regtest address for `address` method argument and
-  an amount in satoshis as a `u64`, if you are getting amount from JSON parse it into a u64
-  for example if the `amount` name from JSON is `user_amount` then call `user_amount.parse::<u64>().unwrap()`
-  before passing that value to the amount field
-*/

@@ -53,25 +53,31 @@ async fn main() -> std::io::Result<()> {
     HOT_CLIENT_RPC.get_or_init(|| hot_client_rpc);
 
     let client = RpcOps::new(&config.mining);
-    if client.get_balance().unwrap().to_sat() < 100_000_000 {
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(100),
-            &config,
-        );
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
-            &config,
-        );
 
-        client
-            .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), 500_000_000)
-            .unwrap();
+    handle_output_err(
+        BtcNative::bitcoin_cli(&config.mining).generate_blocks(100),
+        &config,
+    );
+    handle_output_err(
+        BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
+        &config,
+    );
 
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
-            &config,
-        );
-    }
+    let send_amount = (client.get_balance().unwrap().to_sat()) as f64 * 0.5;
+
+    dbg!(&client.get_balance().unwrap().to_sat());
+    dbg!(&send_amount);
+    dbg!(&client.get_balance().unwrap().to_sat());
+
+    client
+        .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
+        .await
+        .unwrap();
+
+    handle_output_err(
+        BtcNative::bitcoin_cli(&config.mining).generate_blocks(5),
+        &config,
+    );
 
     tokio::spawn(async move {
         mine_blocks(&config2).await;
@@ -102,9 +108,15 @@ async fn main() -> std::io::Result<()> {
                     .allowed_origin("http://localhost:8090")
                     .allowed_origin("http://localhost:8080")
                     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
-                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
-                    .allowed_header(header::CONTENT_TYPE)
+                    .allowed_headers(vec![
+                        header::AUTHORIZATION,
+                        header::ACCEPT,
+                        header::CONTENT_TYPE,
+                    ])
+                    .allow_any_origin()
+                    .send_wildcard()
                     .max_age(3600),
+                //Cors::default().allow_any_origin().send_wildcard(),
             )
     })
     .bind(("0.0.0.0", 3000))?
@@ -151,6 +163,7 @@ pub async fn mine_blocks(config: &Config) {
 
         if let Some(error) = client
             .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount)
+            .await
             .err()
         {
             println!("ENCOUNTERED ERROR WHEN SENDING bitcoin FROM COINBASE TRANSACTIONS TO THE COLD WALLET. \n ERROR: \n{}\n----------------", error.to_string());
@@ -224,6 +237,7 @@ pub async fn balancer(config: &Config) {
             let send_amount = (current_cold_balance as f64) * 0.45;
             if let Some(error) = cold_client
                 .send_amount(HOT_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
+                .await
                 .err()
             {
                 println!(
