@@ -86,10 +86,10 @@ impl RpcOps {
             amount,
             None,
             None,
+            Some(true),
             None,
             None,
-            None,
-            Some(EstimateMode::Conservative),
+            Some(EstimateMode::Unset),
         )?;
 
         Ok(tx.to_string())

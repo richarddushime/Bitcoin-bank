@@ -32,6 +32,9 @@ pub(crate) static HOT_WALLET_ADDRESS: OnceCell<String> = OnceCell::new();
 pub(crate) static HOT_CLIENT_RPC: OnceCell<RpcOps> = OnceCell::new();
 pub(crate) static DATA_DIRS: Lazy<DataDirs> = Lazy::new(|| DataDirs::get_dirs());
 
+const BITCOND_RUNNING: &str = "Bitcoin Core is probably already running.";
+const WALLET_EXISTS: &str = "Database already exists.";
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = Config::load().unwrap();
@@ -111,14 +114,17 @@ async fn main() -> std::io::Result<()> {
 
 pub fn start_miner(config: &Config) {
     handle_output_err(BtcNative::bitcoind_start(&config.mining, None), config);
-    println!("WAITING FOR BITCOIND TO START");
+    println!("WAITING FOR MINER TO START...");
     std::thread::sleep(std::time::Duration::from_secs(3));
-    println!("STARTED BITCOIND");
+    println!("STARTED MINER BITCOIND");
     handle_output_err(BtcNative::create_wallet(&config.mining), config);
 }
 
 pub async fn mine_blocks(config: &Config) {
-    println!("MINING BLOCKS");
+    println!(
+        "MINING BLOCKS at rate of 1 block every {} seconds",
+        &config.block_time
+    );
 
     let duration = tokio::time::Duration::from_secs(config.block_time as u64);
     let mut interval = tokio::time::interval(duration);
@@ -129,20 +135,36 @@ pub async fn mine_blocks(config: &Config) {
 
     loop {
         interval.tick().await;
-        handle_output_err(
-            BtcNative::bitcoin_cli(&config.mining).generate_blocks(1),
-            config,
-        );
+        if let Some(error) = BtcNative::bitcoin_cli(&config.mining)
+            .generate_blocks(1)
+            .err()
+        {
+            println!(
+                "Encountered Error While Mining Block: {:?}",
+                error.to_string()
+            );
+        }
 
         balance = client.get_balance().unwrap().to_sat() as f64;
         send_amount = (balance * 0.95) as u64;
-        dbg!(client.send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount));
+
+        if let Some(error) = client
+            .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount)
+            .err()
+        {
+            println!("ENCOUNTERED ERROR WHEN SENDING bitcoin FROM COINBASE TRANSACTIONS TO THE COLD WALLET. \n ERROR: \n{}\n----------------", error.to_string());
+        }
     }
 }
 
 pub fn handle_output_err(value: io::Result<Output>, config: &Config) {
     match value {
-        Ok(output) => println!("{:?}", output),
+        Ok(output) => {
+            let output_string = String::from_utf8_lossy(&output.stderr).to_string();
+            if !output_string.contains(BITCOND_RUNNING) || !output_string.contains(WALLET_EXISTS) {
+                println!("{:?}", output_string)
+            }
+        }
         Err(error) => stop_nodes(error, config).unwrap(),
     }
 }
@@ -170,9 +192,9 @@ pub fn start_cold_wallet_node(config: &Config) {
         BtcNative::bitcoind_start(&config.cold, Some(config.addnode.as_str())),
         config,
     );
-    println!("WAITING FOR COLD WALLET BITCOIND TO START");
+    println!("WAITING FOR COLD WALLET BITCOIND TO START...");
     std::thread::sleep(std::time::Duration::from_secs(3));
-    println!("STARTED BITCOIND");
+    println!("STARTED COLD WALLET BITCOIND");
     handle_output_err(BtcNative::create_wallet(&config.cold), config);
 }
 
@@ -181,9 +203,9 @@ pub fn start_hot_wallet_node(config: &Config) {
         BtcNative::bitcoind_start(&config.hot, Some(config.addnode.as_str())),
         config,
     );
-    println!("WAITING FOR HOT WALLET BITCOIND TO START");
+    println!("WAITING FOR HOT WALLET BITCOIND TO START...");
     std::thread::sleep(std::time::Duration::from_secs(3));
-    println!("STARTED BITCOIND");
+    println!("STARTED HOT WALLET BITCOIND");
     handle_output_err(BtcNative::create_wallet(&config.hot), config);
 }
 
@@ -196,9 +218,19 @@ pub async fn balancer(config: &Config) {
     loop {
         interval.tick().await;
         if hot_client.get_balance().unwrap().to_sat() < 100_000_000 {
+            println!("HOT WALLET BALANCE LOW. REPLENISHING...");
             let current_cold_balance = cold_client.get_balance().unwrap().to_sat();
             let send_amount = (current_cold_balance as f64) * 0.45;
-            dbg!(cold_client.send_amount(HOT_WALLET_ADDRESS.get().unwrap(), send_amount as u64));
+            if let Some(error) = cold_client
+                .send_amount(HOT_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
+                .err()
+            {
+                println!(
+                    "ENCOUNTERED ERROR WHILE REPLENISHING HOT WALLET: {}",
+                    error.to_string()
+                )
+            }
+            println!("REPLENISHING COMPLETE");
         }
     }
 }
