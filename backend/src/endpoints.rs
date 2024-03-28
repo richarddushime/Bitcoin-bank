@@ -99,7 +99,7 @@ pub async fn update_user_account_details(
 
 #[post("bitcoinbank/spendfromwallet")]
 pub async fn spend_from_wallet(spend: Json<Spend>) -> impl Responder {
-    match database::spend_from_wallet(HOT_CLIENT_RPC.get().unwrap(), spend.into_inner()) {
+    match database::spend_from_wallet(HOT_CLIENT_RPC.get().unwrap(), spend.into_inner()).await {
         Ok(transaction_id) => HttpResponse::Ok()
             .content_type("application/json")
             .json(transaction_id),
@@ -125,17 +125,5 @@ pub async fn get_wallet_balance() -> impl Responder {
             .content_type("application/json")
             .json(amount),
         None => HttpResponse::NotFound().body(format!("There is no amount ")),
-    }
-}
-
-#[get("bitcoinbank/getaddressbalance")]
-pub async fn get_address_balance(address: Json<String>) -> impl Responder {
-    let address: String = address.into_inner();
-
-    match HOT_CLIENT_RPC.get().unwrap().list_unspent(&address) {
-        Ok(amount) => HttpResponse::Ok()
-            .content_type("application/json")
-            .json(amount),
-        Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }

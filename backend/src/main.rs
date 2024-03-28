@@ -7,7 +7,6 @@ use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
-use endpoints::get_address_balance;
 use env_logger::Env;
 use once_cell::sync::{Lazy, OnceCell};
 use std::{io, process::Output};
@@ -64,8 +63,11 @@ async fn main() -> std::io::Result<()> {
             &config,
         );
 
+        let send_amount = (client.get_balance().unwrap().to_sat()) as f64 * 0.9;
+
         client
-            .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), 500_000_000)
+            .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
+            .await
             .unwrap();
 
         handle_output_err(
@@ -96,16 +98,21 @@ async fn main() -> std::io::Result<()> {
             .service(get_users)
             .service(get_bank_balance)
             .service(get_wallet_balance)
-            .service(get_address_balance)
             .service(spend_from_wallet)
             .wrap(Logger::default())
             .wrap(
                 Cors::default()
-                    .allowed_origin("http://localhost:8090")
+                    .allowed_origin("http://localhost:8080")
                     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
-                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
-                    .allowed_header(header::CONTENT_TYPE)
+                    .allowed_headers(vec![
+                        header::AUTHORIZATION,
+                        header::ACCEPT,
+                        header::CONTENT_TYPE,
+                    ])
+                    .allow_any_origin()
+                    .send_wildcard()
                     .max_age(3600),
+                //Cors::default().allow_any_origin().send_wildcard(),
             )
     })
     .bind(("0.0.0.0", 3000))?
@@ -152,6 +159,7 @@ pub async fn mine_blocks(config: &Config) {
 
         if let Some(error) = client
             .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount)
+            .await
             .err()
         {
             println!("ENCOUNTERED ERROR WHEN SENDING bitcoin FROM COINBASE TRANSACTIONS TO THE COLD WALLET. \n ERROR: \n{}\n----------------", error.to_string());
@@ -225,6 +233,7 @@ pub async fn balancer(config: &Config) {
             let send_amount = (current_cold_balance as f64) * 0.45;
             if let Some(error) = cold_client
                 .send_amount(HOT_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
+                .await
                 .err()
             {
                 println!(

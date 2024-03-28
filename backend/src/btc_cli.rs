@@ -1,6 +1,6 @@
 use std::{io, process::Output};
 
-use crate::{CommonNodeDetails, COLD_WALLET_ADDRESS};
+use crate::CommonNodeDetails;
 
 #[derive(Default)]
 pub struct BtcNative {
