@@ -24,6 +24,7 @@
         amount: 0,
         transactionId: null,
         balance: null,
+        error: "",
       };
     },
     methods: {
@@ -45,20 +46,22 @@
             }
           );
         
-          if (response.ok) {
-            try {
-              const transactionId = await response.json();
-              this.transactionId = transactionId;
-              // Clearing form fields after successful spend
-              this.destinationAddress = "";
-              this.amount = 0;
-            } catch (error) {
-              console.error("Error parsing JSON response:", error);
-              this.error = "An error occurred while spending from wallet."; 
-            }
-          } else {
-            console.error("Error spending from wallet:", await response.text());
-            this.error = "An error occurred while communicating with the server.";
+            if (response.ok) {
+              try {
+                const transactionId = await response.json();
+                // const { transactionId, balance } = await response.json();
+                this.transactionId = transactionId;
+                // this.balance = balance;
+                // Clearing form fields after successful spend
+                this.destinationAddress = "";
+                this.amount = 0;
+              } catch (error) {
+                console.error("Error parsing JSON response:", error);
+                this.error = "An error occurred while spending from wallet."; 
+              }
+            } else {
+              console.error("Error spending from wallet:", await response.text());
+              this.error = "An error occurred while communicating with the server.";
           }
         } catch (error) {
           console.error("Error spending from wallet:", error);
