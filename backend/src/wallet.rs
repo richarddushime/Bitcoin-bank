@@ -1,10 +1,7 @@
 use crate::CommonNodeDetails;
 use bitcoincore_rpc::{
     bitcoin::{Address, Amount, Network},
-    bitcoincore_rpc_json::{
-        AddressType, EstimateMode, GetNetworkInfoResult, GetRawTransactionResult,
-        ListUnspentResultEntry, LoadWalletResult,
-    },
+    bitcoincore_rpc_json::{AddressType, EstimateMode, GetNetworkInfoResult, LoadWalletResult},
     Auth, Client, Result as BtcResult, RpcApi,
 };
 use serde::Serialize;
@@ -73,7 +70,7 @@ impl RpcOps {
         }
     }
 
-    pub fn send_amount(&self, address: &str, amount: u64) -> BtcResult<GetRawTransactionResult> {
+    pub async fn send_amount(&self, address: &str, amount: u64) -> BtcResult<TxResult> {
         let address = self.parse_address(address).unwrap();
         let amount = Amount::from_sat(amount);
 
@@ -82,26 +79,31 @@ impl RpcOps {
             amount,
             None,
             None,
-            Some(true),
+            None,
             None,
             None,
             Some(EstimateMode::Unset),
         )?;
 
-        Ok(self.client.get_raw_transaction_info(&tx, None)?)
-    }
+        let tx_info = self.client.get_raw_transaction_info(&tx, None)?;
 
-    pub fn list_unspent(&self, address: &str) -> BtcResult<f64> {
-        let address = self.parse_address(address).unwrap();
-        let unspent = self
-            .client
-            .list_unspent(None, None, Some(&[&address]), None, None)?;
+        let bank_balance = self.get_balance().unwrap();
 
-        let mut amount = Amount::MIN;
-        unspent.iter().for_each(|unspent_entry| {
-            amount += unspent_entry.amount;
+        return Ok(TxResult {
+            txid: tx_info.txid.to_string(),
+            bank_balance: bank_balance.to_btc(),
+            witness_hash: tx_info.hash.to_string(),
+            version: tx_info.version,
+            locktime: tx_info.locktime,
         });
-
-        Ok(amount.to_btc())
     }
+}
+
+#[derive(Debug, Serialize)]
+pub struct TxResult {
+    txid: String,
+    bank_balance: f64,
+    witness_hash: String,
+    version: u32,
+    locktime: u32,
 }

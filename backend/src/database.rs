@@ -1,8 +1,8 @@
 use crate::{
     schema::{BankBalance, Spend, UserAccountDetails, UserSpendHistory, Users},
-    RpcOps,
+    RpcOps, TxResult,
 };
-use bitcoincore_rpc::{bitcoincore_rpc_json::GetRawTransactionResult, Result as BtcResult};
+use bitcoincore_rpc::Result as BtcResult;
 use config::Config;
 use rusqlite::Connection;
 use std::error::Error;
@@ -244,7 +244,7 @@ pub fn get_wallet_balance(rpc: &RpcOps) -> Result<Option<f64>, Box<dyn Error>> {
     Ok(Some(my_wallet))
 }
 
-pub fn spend_from_wallet(rpc: &RpcOps, spend: Spend) -> BtcResult<GetRawTransactionResult> {
+pub async fn spend_from_wallet(rpc: &RpcOps, spend: Spend) -> BtcResult<TxResult> {
     if rpc.get_balance().unwrap().to_sat() < spend.amount {
         Err(bitcoincore_rpc::Error::ReturnedError(String::from(
             "You cannot spend more than you have, wait for the bank to mine more bitcoins",
@@ -252,7 +252,7 @@ pub fn spend_from_wallet(rpc: &RpcOps, spend: Spend) -> BtcResult<GetRawTransact
     } else {
         let spend_address = spend.dest_address;
         let st_spend_address = spend_address.as_str();
-        let transaction_id = rpc.send_amount(st_spend_address, spend.amount)?;
+        let transaction_id = rpc.send_amount(st_spend_address, spend.amount).await?;
         Ok(transaction_id)
     }
 }
