@@ -1,6 +1,6 @@
 use std::{io, process::Output};
 
-use crate::CommonNodeDetails;
+use crate::{CommonNodeDetails, COLD_WALLET_ADDRESS};
 
 #[derive(Default)]
 pub struct BtcNative {
@@ -19,7 +19,6 @@ impl BtcNative {
                 "-txindex=1".to_owned(),
                 "-rpcallowip=127.0.0.1".to_owned(),
                 "-fallbackfee=0.00001".to_owned(),
-                "-maxtxfee=0.0001".to_owned(),
                 format!("-port={}", config.port),
                 BtcNative::datadir(config),
                 BtcNative::rpcport(config),
