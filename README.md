@@ -33,29 +33,25 @@ cd Bitcoin-bank
 > Note:This project consists of 2 modules client(frontend) and backend,
 
 ### 3. Running the binaries
-The service requires `bitcoind` to be run for both the hot wallet and cold wallet. 
-There is a default configuration in the `backend/bitcoin-bank-conf` directory.
+The service requires `bitcoind` and `bitcoin-cli` to installed.
+To run the binary, pass the config file which configures the bitcoin daemons for the mining node (node that consistently generates blocks), hot walled node and cold wallet node. The example config file can be found in the `backend/btc_conf.toml` file.
 
-To run the nodes for the hot and cold wallet nodes first run the hot wallet because the cold wallet node will try to connect to the hot wallet node. 
-Remember to replace the part `/aboslute/path/to/project/directory` with the path to this github project in your local machine since it will look in the `<absolute_path>/backend/bitcoin-bank-conf` 
+The binary checks for the home directory of your specific platform and uses that to create the data directory for the bitcoind for the nodes as follows:
 ```sh
-$ bitcoind -conf=bitcoin.conf -datadir=/aboslute/path/to/project/directory/backend/bitcoin-bank-conf/hot-wallet -fallbackfee=0.00001 -maxtxfee=0.0001
+UserHomeDir
+  |-- bitcoin-bank-data #Application directory 
+          |-- mining-node # Mining node data directory
+          |-- hot-node # Hot wallet node data directory
+          |-- cold-node # Cold wallet node data directory
 ```
-Then run the cold wallet replacing the path
-```sh
-$ bitcoind -conf=bitcoin.conf -datadir=/aboslute/path/to/project/directory/backend/bitcoin-bank-conf/cold-wallet -fallbackfee=0.00001 -maxtxfee=0.0001
-```
-We will use `cold` and `hot` commandline arguments to signify either running a cold wallet binary or the hot wallet + server binary.
 
-Run the cold wallet to generate some blocks.
-Inside the `backend` directory run
+To run the binary with the default config file
 ```sh
-$ cargo run -p cold-wallet -- cold
+$ cd ./backend
+
+$ cargo run -- ./btc_conf.toml
 ```
-Then run the hot wallet + server binary (still inside the backend directory)
-```sh
-$ cargo run -p hot-wallet -- hot
-```
+
 
 ## Explore the Frontend:
 
