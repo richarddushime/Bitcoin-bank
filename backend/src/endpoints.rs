@@ -1,5 +1,5 @@
-use crate::database;
-use crate::schema::{UserAccountDetails, UserSpendHistory, Users,Spend};
+use crate::schema::{Spend, UserAccountDetails, UserSpendHistory, Users};
+use crate::{database, HOT_CLIENT_RPC};
 use actix_web::{delete, get, post, put, web, HttpResponse, Responder};
 use web::{Json, Path};
 
@@ -40,8 +40,6 @@ pub async fn get_users() -> impl Responder {
     }
 }
 
-
-
 #[get("bitcoinbank/bankbalance")]
 pub async fn get_bank_balance() -> impl Responder {
     match database::get_bank_balance().unwrap() {
@@ -56,7 +54,7 @@ pub async fn get_bank_balance() -> impl Responder {
 pub async fn insert_user(user: Json<Users>) -> impl Responder {
     match database::insert_user(user.into_inner()) {
         Ok(api_key) => HttpResponse::Ok().body(api_key),
-        Err(e) => HttpResponse::InternalServerError().body(e.to_string())
+        Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
 
@@ -67,7 +65,6 @@ pub async fn insert_user_spend(user_spending: Json<UserSpendHistory>) -> impl Re
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
-
 
 #[post("bitcoinbank/sendbalance")]
 pub async fn insert_user_account_details(
@@ -101,21 +98,21 @@ pub async fn update_user_account_details(
 
 #[post("bitcoinbank/spendfromwallet")]
 pub async fn spend_from_wallet(spend: Json<Spend>) -> impl Responder {
-    match database::spend_from_wallet(spend.into_inner()) {
-        Ok(transaction_id) => HttpResponse::Ok().content_type("application/json").json(transaction_id),
+    match database::spend_from_wallet(HOT_CLIENT_RPC.get().unwrap(), spend.into_inner()) {
+        Ok(transaction_id) => HttpResponse::Ok()
+            .content_type("application/json")
+            .json(transaction_id),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
 
 #[get("bitcoinbank/getbalancefromwallet")]
 pub async fn get_wallet_balance() -> impl Responder {
-    match database::get_wallet_balance().unwrap() {
-        Some(amount) => {
-            HttpResponse::Ok().content_type("application/json").json(amount)
-        },
-        None => {
-            HttpResponse::NotFound().body(format!("There is no amount "))
-        }
+    match database::get_wallet_balance(HOT_CLIENT_RPC.get().unwrap()).unwrap() {
+        Some(amount) => HttpResponse::Ok()
+            .content_type("application/json")
+            .json(amount),
+        None => HttpResponse::NotFound().body(format!("There is no amount ")),
     }
 }
 

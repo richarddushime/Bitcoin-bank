@@ -1,0 +1,24 @@
+addnode = "127.0.0.1:18888" # This is the port where the mining node is running on where other peers will connect to
+block_time = 5              # The time each block will be mined
+
+[mining]
+rpc_username = "foobar"
+rpc_password = "password"
+port = 18888
+rpc_port = 18889
+wallet_name = "MiningWallet"
+
+[hot]
+rpc_username = "foobar"
+rpc_password = "password"
+port = 17777
+rpc_port = 17778
+wallet_name = "HotWallet"
+
+
+[cold]
+rpc_username = "foobar"
+rpc_password = "password"
+port = 16666
+rpc_port = 16667
+wallet_name = "ColdWallet"
