@@ -2,7 +2,7 @@
   <div class="bitcoin-bank">
     <h2>Bitcoin Bank</h2>
     <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
-    <p class="balance"> Current Balance: {{ balance }}</p>
+    <p class="balance"> Current Balance: <strong> {{ balance }}</strong></p>
     <p>Ready to Spend ?  Fill the Form</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
       <label for="destinationAddress" class="label">Destination Address:</label>
