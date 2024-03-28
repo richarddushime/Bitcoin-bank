@@ -2,10 +2,12 @@ use crate::CommonNodeDetails;
 use bitcoincore_rpc::{
     bitcoin::{Address, Amount, Network},
     bitcoincore_rpc_json::{
-        AddressType, EstimateMode, GetNetworkInfoResult, ListUnspentResultEntry, LoadWalletResult,
+        AddressType, EstimateMode, GetNetworkInfoResult, GetRawTransactionResult,
+        ListUnspentResultEntry, LoadWalletResult,
     },
     Auth, Client, Result as BtcResult, RpcApi,
 };
+use serde::Serialize;
 use std::str::FromStr;
 
 pub struct RpcOps {
@@ -71,13 +73,7 @@ impl RpcOps {
         }
     }
 
-    pub fn list_unspent(&self) -> Vec<ListUnspentResultEntry> {
-        self.client
-            .list_unspent(Option::None, Option::None, None, None, None)
-            .unwrap()
-    }
-
-    pub fn send_amount(&self, address: &str, amount: u64) -> BtcResult<String> {
+    pub fn send_amount(&self, address: &str, amount: u64) -> BtcResult<GetRawTransactionResult> {
         let address = self.parse_address(address).unwrap();
         let amount = Amount::from_sat(amount);
 
@@ -92,6 +88,20 @@ impl RpcOps {
             Some(EstimateMode::Unset),
         )?;
 
-        Ok(tx.to_string())
+        Ok(self.client.get_raw_transaction_info(&tx, None)?)
+    }
+
+    pub fn list_unspent(&self, address: &str) -> BtcResult<f64> {
+        let address = self.parse_address(address).unwrap();
+        let unspent = self
+            .client
+            .list_unspent(None, None, Some(&[&address]), None, None)?;
+
+        let mut amount = Amount::MIN;
+        unspent.iter().for_each(|unspent_entry| {
+            amount += unspent_entry.amount;
+        });
+
+        Ok(amount.to_btc())
     }
 }
