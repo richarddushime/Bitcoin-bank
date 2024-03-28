@@ -2,16 +2,17 @@
   <div class="bitcoin-bank">
     <h2>Bitcoin Bank</h2>
     <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
+    <p class="balance"> Current Balance: <strong> {{ balance }}</strong></p>
+    <p>Ready to Spend ?  Fill the Form</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
-      <label for="destinationAddress" class="label">Destination Address:</label><br>
+      <label for="destinationAddress" class="label">Destination Address:</label>
       <input type="text" id="destinationAddress" v-model="destinationAddress" required class="input" /><br>
-      <label for="amount" class="label">Amount (in satoshis):</label> <br>
+      <label for="amount" class="label">Amount (in satoshis):</label>
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
     <p v-if="transactionId" class="transaction-id">Transaction ID: {{ transactionId }}</p>
     <p v-if="error" class="error-message">{{ error }}</p>
-    <p class="balance">Balance: {{ balance }}</p>
   </div>
 </template>
   
@@ -23,6 +24,7 @@
         amount: 0,
         transactionId: null,
         balance: null,
+        error: "",
       };
     },
     methods: {
@@ -44,20 +46,22 @@
             }
           );
         
-          if (response.ok) {
-            try {
-              const transactionId = await response.json();
-              this.transactionId = transactionId;
-              // Clearing form fields after successful spend
-              this.destinationAddress = "";
-              this.amount = 0;
-            } catch (error) {
-              console.error("Error parsing JSON response:", error);
-              this.error = "An error occurred while spending from wallet."; 
-            }
-          } else {
-            console.error("Error spending from wallet:", await response.text());
-            this.error = "An error occurred while communicating with the server.";
+            if (response.ok) {
+              try {
+                const transactionId = await response.json();
+                // const { transactionId, balance } = await response.json();
+                this.transactionId = transactionId;
+                // this.balance = balance;
+                // Clearing form fields after successful spend
+                this.destinationAddress = "";
+                this.amount = 0;
+              } catch (error) {
+                console.error("Error parsing JSON response:", error);
+                this.error = "An error occurred while spending from wallet."; 
+              }
+            } else {
+              console.error("Error spending from wallet:", await response.text());
+              this.error = "An error occurred while communicating with the server.";
           }
         } catch (error) {
           console.error("Error spending from wallet:", error);
@@ -106,8 +110,10 @@
   margin-bottom: 1rem;
 }
 
-.label {
+label {
   font-weight: bold;
+  float: left;
+  display: block;
 }
 
 .input,

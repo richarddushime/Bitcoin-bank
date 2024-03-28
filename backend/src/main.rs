@@ -105,6 +105,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(
                 Cors::default()
+                    .allowed_origin("http://localhost:8090")
                     .allowed_origin("http://localhost:8080")
                     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
                     .allowed_headers(vec![
