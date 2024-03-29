@@ -3,6 +3,22 @@
     <h2>Bitcoin Bank</h2>
     <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
     <p class="balance"> Current Balance: <strong> {{ balance }}</strong></p>
+    
+    <p>
+      <button @click="showTransactionDetailsPopup = true">
+        View Transaction History
+      </button>
+    </p>
+    <modal v-if="showTransactionDetailsPopup" @close="showTransactionDetailsPopup = false">
+      <p v-if="transactionId" class="transaction-id">
+      <strong>Transaction Details</strong> <br>
+      TxID: {{ transactionId.txid }} <br>
+      Bank Balance: {{ transactionId.bank_balance }} <br>
+      Witness Hash: {{ transactionId.witness_hash }} <br>
+      Version: {{ transactionId.version }} <br>
+      Locktime: {{ transactionId.locktime }} <br>
+    </p>      
+      </modal>
     <p>Ready to Spend ?  Fill the Form</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
       <label for="destinationAddress" class="label">Destination Address:</label>
@@ -11,11 +27,9 @@
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
-    <p v-if="transactionId" class="transaction-id">Transaction ID: {{ transactionId }}</p>
     <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
-  
   <script>
   export default {
     data() {
@@ -25,6 +39,7 @@
         transactionId: null,
         balance: null,
         error: "",
+        showTransactionDetailsPopup: false,
       };
     },
     methods: {

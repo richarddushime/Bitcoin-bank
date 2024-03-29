@@ -2,14 +2,12 @@
     <div class="bitcoin-bank">
       <h2>Bitcoin Bank</h2>
       <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
-      
-      <p class="balance">Received BTC: 5000</p> 
+      <p>Sending Address : bcrt1qdxsdrpd6np9ma6hp758779fc4mn8t0lgpfuyfx </p>
+      <p class="balance">Received BTC: (sats) </p> 
     </div>
-    <p>Welcome User1</p>
+    <p><strong>Welcome User1</strong></p>
   </template>
-  
-  import 
-  <style scoped>
+<style scoped>
   .bitcoin-bank {
     font-family: sans-serif;
     margin: 2rem auto;

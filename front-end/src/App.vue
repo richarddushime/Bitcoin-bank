@@ -7,14 +7,19 @@
       <a v-if="user.role === 'admin'" href="#">Welcome, Admin</a>  
     </div>
   </div>
+  <TransactionHistory />
   <aFooter />
+  <modalPop />
 </template>
 
 <script>
 import LoginForm from './components/LoginForm.vue';
 import GetBalance from './components/GetBalance.vue';
 import userBalance from './components/userBalance';
+import TransactionHistory from './components/TransactionHistory.vue';
 import aFooter from './components/aFooter.vue';
+import modalPop from './components/modalPop.vue';
+
 
 export default {
   name: 'App',
@@ -22,12 +27,15 @@ export default {
     LoginForm,
     userBalance,
     GetBalance,
+    TransactionHistory,
     aFooter, 
+    modalPop,
   },
   data() {
     return {
       isLoggedIn: false,
       user: null,
+      showTransactionDetailsPopup: false,
     };
   },
   methods: {
@@ -37,7 +45,7 @@ export default {
     },
   },
   created() {
-    // Check for pre-existing login (for example purposes)
+    // Check for pre-existing logins
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       this.user = JSON.parse(storedUser);
@@ -56,4 +64,4 @@ export default {
     color: #2c3e50;
     margin-top: 60px;
   }
-</style>
+</style>./components/modalPop.vue
