@@ -2,7 +2,7 @@ use crate::CommonNodeDetails;
 use bitcoincore_rpc::{
     bitcoin::{Address, Amount, Network},
     bitcoincore_rpc_json::{AddressType, EstimateMode, GetNetworkInfoResult, LoadWalletResult},
-    Auth, Client, Result as BtcResult, RpcApi,
+    Auth, Client, Error as BtcError, Result as BtcResult, RpcApi,
 };
 use serde::Serialize;
 use std::str::FromStr;
@@ -61,7 +61,7 @@ impl RpcOps {
     }
 
     pub fn parse_address(&self, address: &str) -> Result<Address, String> {
-        match Address::from_str(address) {
+        match Address::from_str(address.trim()) {
             Ok(parsed) => match parsed.require_network(Network::Regtest) {
                 Ok(value) => Ok(value),
                 Err(error) => Err(error.to_string()),
@@ -71,31 +71,35 @@ impl RpcOps {
     }
 
     pub async fn send_amount(&self, address: &str, amount: u64) -> BtcResult<TxResult> {
-        let address = self.parse_address(address).unwrap();
-        let amount = Amount::from_sat(amount);
+        match self.parse_address(address) {
+            Ok(address) => {
+                let amount = Amount::from_sat(amount);
 
-        let tx = self.client.send_to_address(
-            &address,
-            amount,
-            None,
-            None,
-            None,
-            None,
-            None,
-            Some(EstimateMode::Unset),
-        )?;
+                let tx = self.client.send_to_address(
+                    &address,
+                    amount,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    Some(EstimateMode::Unset),
+                )?;
 
-        let tx_info = self.client.get_raw_transaction_info(&tx, None)?;
+                let tx_info = self.client.get_raw_transaction_info(&tx, None)?;
 
-        let bank_balance = self.get_balance().unwrap();
+                let bank_balance = self.get_balance().unwrap();
 
-        return Ok(TxResult {
-            txid: tx_info.txid.to_string(),
-            bank_balance: bank_balance.to_btc(),
-            witness_hash: tx_info.hash.to_string(),
-            version: tx_info.version,
-            locktime: tx_info.locktime,
-        });
+                Ok(TxResult {
+                    txid: tx_info.txid.to_string(),
+                    bank_balance: bank_balance.to_btc(),
+                    witness_hash: tx_info.hash.to_string(),
+                    version: tx_info.version,
+                    locktime: tx_info.locktime,
+                })
+            }
+            Err(error) => Err(BtcError::ReturnedError(format!("error: {error}"))),
+        }
     }
 }
 
