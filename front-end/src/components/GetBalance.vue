@@ -20,6 +20,7 @@
     </p>      
       </modal>
     <p>Ready to Spend ?  Fill the Form</p>
+    <p v-if="error" class="error-message">{{ error }}</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
       <label for="destinationAddress" class="label">Destination Address:</label>
       <input type="text" id="destinationAddress" v-model="destinationAddress" required class="input" /><br>
@@ -27,7 +28,6 @@
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
-    <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
   <script>
