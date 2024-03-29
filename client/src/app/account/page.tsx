@@ -1,4 +1,3 @@
-import { balance } from '@/utils'
 import React from 'react'
 
 const Account = () => {
@@ -6,7 +5,7 @@ const Account = () => {
     <>
       <h1>Account</h1>
       <div>
-        {balance.balance}
+        User Account
       </div>
     </>
   )
