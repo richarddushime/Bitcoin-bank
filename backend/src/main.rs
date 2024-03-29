@@ -65,10 +65,6 @@ async fn main() -> std::io::Result<()> {
 
     let send_amount = (client.get_balance().unwrap().to_sat()) as f64 * 0.5;
 
-    dbg!(&client.get_balance().unwrap().to_sat());
-    dbg!(&send_amount);
-    dbg!(&client.get_balance().unwrap().to_sat());
-
     client
         .send_amount(COLD_WALLET_ADDRESS.get().unwrap(), send_amount as u64)
         .await
