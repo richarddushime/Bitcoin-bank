@@ -10,7 +10,14 @@
       </button>
     </p>
     <modal v-if="showTransactionDetailsPopup" @close="showTransactionDetailsPopup = false">
-      <strong>Tx History</strong> <br>
+      <p v-if="transactionId" class="transaction-id">
+      <strong>Transaction Details</strong> <br>
+      TxID: {{ transactionId.txid }} <br>
+      Bank Balance: {{ transactionId.bank_balance }} <br>
+      Witness Hash: {{ transactionId.witness_hash }} <br>
+      Version: {{ transactionId.version }} <br>
+      Locktime: {{ transactionId.locktime }} <br>
+    </p>      
       </modal>
     <p>Ready to Spend ?  Fill the Form</p>
     <form @submit.prevent="spendFromWallet" class="spend-form">
@@ -20,14 +27,6 @@
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
-    <p v-if="transactionId" class="transaction-id">
-      <strong>Transaction Details</strong> <br>
-      TxID: {{ transactionId.txid }} <br>
-      Bank Balance: {{ transactionId.bank_balance }} <br>
-      Witness Hash: {{ transactionId.witness_hash }} <br>
-      Version: {{ transactionId.version }} <br>
-      Locktime: {{ transactionId.locktime }} <br>
-    </p>
     <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
