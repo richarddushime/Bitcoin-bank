@@ -2,7 +2,7 @@
     <div class="bitcoin-bank">
       <h2>Bitcoin Bank</h2>
       <p>Experience peace of mind knowing your funds are stored in both hot and cold wallets, keeping them safe from potential threats.</p>
-      <p class="balance"> Current Balance: <strong> {{ balance || 0 }}</strong></p>
+      <p class="balance"> Current Balance: <strong> {{ balance }}</strong></p>
 
       <p>
         <button @click="showTransactionDetailsPopup = true">
@@ -89,7 +89,7 @@
 
         } catch (error) {
           console.error("Error spending from wallet:", error);
-          this.error = "An error occurred while communicating with the server.";
+          this.error = " You  balance is low  ie insufficient funds.";
         }
       },
 

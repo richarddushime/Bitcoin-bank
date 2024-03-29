@@ -7,7 +7,7 @@
       <a v-if="user.role === 'admin'" href="#">Welcome, Admin</a>  
     </div>
   </div>
-  <TransactionHistory />
+  <!-- <TransactionHistory /> -->
   <aFooter />
   <modalPop />
 </template>
@@ -16,7 +16,7 @@
 import LoginForm from './components/LoginForm.vue';
 import GetBalance from './components/GetBalance.vue';
 import userBalance from './components/userBalance';
-import TransactionHistory from './components/TransactionHistory.vue';
+// import TransactionHistory from './components/TransactionHistory.vue';
 import aFooter from './components/aFooter.vue';
 import modalPop from './components/modalPop.vue';
 
@@ -27,7 +27,7 @@ export default {
     LoginForm,
     userBalance,
     GetBalance,
-    TransactionHistory,
+    // TransactionHistory,
     aFooter, 
     modalPop,
   },
