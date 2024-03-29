@@ -28,6 +28,14 @@
       <input type="number" id="amount" v-model.number="amount" required class="input" /><br>
       <button type="submit" class="spend-button">Spend</button><br>
     </form>
+    <p v-if="transactionId" class="transaction-id">
+      <strong>Transaction Details</strong> <br>
+      TxID: {{ transactionId.txid }} <br>
+      Bank Balance: {{ transactionId.bank_balance }} <br>
+      Witness Hash: {{ transactionId.witness_hash }} <br>
+      Version: {{ transactionId.version }} <br>
+      Locktime: {{ transactionId.locktime }} <br>
+    </p>
   </div>
 </template>
   <script>
