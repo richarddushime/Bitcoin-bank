@@ -1,16 +1,23 @@
 'use client';
 
 import React, { useEffect, useState } from 'react'
-import Link from 'next/link';
+const initialFormData = {
+  "txid":"",
+  "bank_balance":null,
+  "witness_hash":"",
+  "version":null,
+  "locktime":null
+}
 
 const Admin = () => {
   const [balance, setBalance] = useState<number>();
   const [address, setAddress] = useState("")
   const [amount, setAmount] = useState("")
-  const [formResponse, setFormResponse] = useState("")
+  const [formResponse, setFormResponse] = useState(initialFormData)
 
   const getBalance = async () => {
     const res = await fetch("http://127.0.0.1:3000/bitcoinbank/getbalancefromwallet", {
+      cache: 'no-store',
       method: "GET",
       headers: {
         'content-type': 'application/json',
@@ -34,6 +41,7 @@ const Admin = () => {
         },
       )
       const res = await req.json()
+      console.log(res)
       setFormResponse(res);
       getBalance()
     } catch (error) {
@@ -94,8 +102,10 @@ const Admin = () => {
               </div>
             </div>
           </form>
-          <div>
-              {formResponse}
+          <div className='my-4 ml-20'>
+              <p>TransactionID: {formResponse.txid}</p>
+              <p>Balance: {formResponse.bank_balance} </p>
+              <p>LockTime: {formResponse.locktime}</p>
           </div>
         </div>
       </div>
